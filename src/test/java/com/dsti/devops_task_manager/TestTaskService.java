@@ -4,6 +4,7 @@ package com.dsti.devops_task_manager;
 import com.dsti.devops_task_manager.entities.TaskEntity;
 import com.dsti.devops_task_manager.enums.TaskStatus;
 import com.dsti.devops_task_manager.models.Task;
+import com.dsti.devops_task_manager.repositories.TaskRepository;
 import com.dsti.devops_task_manager.services.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class TestTaskService {
 
     @Autowired
     TaskService taskService;
+
+    @Autowired
+    TaskRepository taskRepository;
 
 
     @Test
@@ -85,6 +89,7 @@ public class TestTaskService {
 
     @Test
     public void testCreateTask() {
+        // Given: a new Task model to be saved
         Task task = Task.builder()
                 .title("Test Task")
                 .description("This is a test")
@@ -99,5 +104,40 @@ public class TestTaskService {
         assertThat(createdTask.getTitle()).isEqualTo(task.getTitle());
         assertThat(createdTask.getDescription()).isEqualTo(task.getDescription());
         assertThat(createdTask.getStatus()).isEqualTo(task.getStatus());
+    }
+
+    @Test
+    public void testGetTaskByIdWithExistingTask() {
+        // Given: a TaskEntity persisted in the repository
+        TaskEntity taskEntity = TaskEntity.builder()
+                .title("Test Task")
+                .description("Test description")
+                .status(TaskStatus.TODO)
+                .build();
+
+        TaskEntity savedEntity = taskRepository.save(taskEntity);
+
+        // When: retrieving task by ID using the service
+        Task task = taskService.getTaskById(savedEntity.getId());
+
+        // Then: verify task is returned and fields match
+        assertThat(task).isNotNull();
+        assertThat(task.getId()).isEqualTo(savedEntity.getId());
+        assertThat(task.getTitle()).isEqualTo(savedEntity.getTitle());
+        assertThat(task.getDescription()).isEqualTo(savedEntity.getDescription());
+        assertThat(task.getStatus()).isEqualTo(savedEntity.getStatus());
+    }
+
+
+    @Test
+    public void testGetTaskByIdWithNonExistingTask() {
+        // Given: ensure the task with ID 2L does not exist
+        taskRepository.deleteById(2L);
+
+        // When: retrieving task by ID using the service
+        Task task = taskService.getTaskById(2L);
+
+        // Then: verify task is null
+        assertThat(task).isNull();
     }
 }

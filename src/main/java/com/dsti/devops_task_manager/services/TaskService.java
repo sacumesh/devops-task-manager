@@ -51,4 +51,10 @@ public class TaskService {
     }
 
 
+    public Task getTaskById(Long id) {
+        TaskEntity taskEntity = this.taskRepository.findById(id).orElse(null);
+        return toTask(taskEntity);
+    }
+
+
 }
