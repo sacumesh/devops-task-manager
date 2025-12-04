@@ -64,7 +64,8 @@ public class TestTaskControllerIntegrationTests {
         this.taskRepository.deleteById(taskId);
 
         // When + Then: expect TaskNotFoundException handled by your @RestControllerAdvice
-        mockMvc.perform(get(api + "/" + taskId))
+        mockMvc.perform(get(api + "/" + taskId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Task not found with ID: " + taskId))
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
@@ -76,7 +77,7 @@ public class TestTaskControllerIntegrationTests {
     void testCreateTask() throws Exception {
 
         mockMvc.perform(post(this.api)
-                        .contentType("application/json")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                     "title": "Test Task",
@@ -105,7 +106,7 @@ public class TestTaskControllerIntegrationTests {
 
         // When + Then
         mockMvc.perform(put(this.api)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                     "id": %d,
@@ -131,7 +132,7 @@ public class TestTaskControllerIntegrationTests {
 
         // When + Then
         mockMvc.perform(put(this.api)
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                     "id": %d,
@@ -170,7 +171,8 @@ public class TestTaskControllerIntegrationTests {
         this.taskRepository.deleteById(taskId);
 
         // When + Then
-        mockMvc.perform(delete(api + "/" + taskId))
+        mockMvc.perform(delete(api + "/" + taskId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Task not found with ID: " + taskId))
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
