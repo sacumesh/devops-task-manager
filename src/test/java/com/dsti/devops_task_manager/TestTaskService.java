@@ -161,7 +161,6 @@ public class TestTaskService {
         Task task = Task.builder()
                 .title("Test Task")
                 .description("This is a test")
-                .status(TaskStatus.TODO)
                 .build();
 
         // When: creating the task
@@ -171,7 +170,7 @@ public class TestTaskService {
         assertThat(createdTask.getId()).isNotNull();
         assertThat(createdTask.getTitle()).isEqualTo(task.getTitle());
         assertThat(createdTask.getDescription()).isEqualTo(task.getDescription());
-        assertThat(createdTask.getStatus()).isEqualTo(task.getStatus());
+        assertThat(createdTask.getStatus()).isEqualTo(TaskStatus.TODO);
     }
 
     @Test

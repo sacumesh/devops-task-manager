@@ -3,6 +3,7 @@ package com.dsti.devops_task_manager.services;
 
 import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
+import com.dsti.devops_task_manager.enums.TaskStatus;
 import com.dsti.devops_task_manager.exceptions.TaskNotFoundException;
 import com.dsti.devops_task_manager.models.Task;
 import com.dsti.devops_task_manager.repositories.TaskRepository;
@@ -57,6 +58,8 @@ public class TaskService {
         log.info("Creating task with title: {}", task.getTitle());
 
         TaskEntity taskEntity = toTaskEntity(task);
+        // New task
+        taskEntity.setStatus(TaskStatus.TODO);
         TaskEntity savedEntity = this.taskRepository.save(taskEntity);
 
         log.debug("Task created with ID: {}", savedEntity.getId());
