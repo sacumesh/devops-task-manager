@@ -28,18 +28,8 @@ public class TestTaskService {
 
 
     @Test
-    void testToTaskEntityWithNull() {
-        // Given: a null Task
-        // When: converting to TaskEntity
-        TaskEntity entity = taskService.toTaskEntity(null);
-
-        // Then: the result should be null
-        assertThat(entity).isNull();
-    }
-
-    @Test
-    public void testToTaskEntityWithNonnull() {
-        // Given: a Task model
+    public void testToTaskEntity() {
+        // Given: a Task
         Task task = Task.builder()
                 .id(1L)
                 .title("Test Task")
@@ -58,27 +48,46 @@ public class TestTaskService {
         assertThat(entity.getStatus()).isEqualTo(task.getStatus());
     }
 
-
     @Test
-    void testToTaskWithTaskDtoWithNull() {
-        // Given: a null TaskDto
-        // When: converting to Task
-        Task task = taskService.toTask((TaskDto) null); // cast null to TaskDto
+    void testToTaskEntityWithNull() {
+        // Given: a null Task
+        // When: converting to TaskEntity
+        TaskEntity entity = taskService.toTaskEntity(null);
 
         // Then: the result should be null
-        assertThat(task).isNull();
+        assertThat(entity).isNull();
     }
 
     @Test
-    void testToTaskWithTaskEntityWithNull() {
-        // Given: a null Task entity
-        // When: converting to Task (DTO to entity overload)
-        Task task = taskService.toTask((TaskEntity) null); // cast null to Task
+    public void testToTaskDto() {
+        // Given: a Task model
+        Task task = Task.builder()
+                .id(1L)
+                .title("Test Task")
+                .description("This is a test")
+                .status(TaskStatus.COMPLETED)
+                .build();
 
-        // Then: the result should be null
-        assertThat(task).isNull();
+        // When: converting to TaskDto
+        TaskDto dto = taskService.toTaskDto(task);
+
+        // Then: verify all fields are correctly mapped
+        assertThat(dto).isNotNull();
+        assertThat(dto.getId()).isEqualTo(task.getId());
+        assertThat(dto.getTitle()).isEqualTo(task.getTitle());
+        assertThat(dto.getDescription()).isEqualTo(task.getDescription());
+        assertThat(dto.getStatus()).isEqualTo(task.getStatus());
     }
 
+    @Test
+    void testToTaskDtoWithNull() {
+        // Given: a null Task
+        // When: converting to TaskDto
+        TaskDto dto = taskService.toTaskDto(null);
+
+        // Then: the result should be null
+        assertThat(dto).isNull();
+    }
 
     @Test
     public void testToTaskWithTaskDto() {
@@ -101,6 +110,16 @@ public class TestTaskService {
         assertThat(task.getStatus()).isEqualTo(dto.getStatus());
     }
 
+    @Test
+    void testToTaskWithNullTaskDto() {
+        // Given: a null TaskDto
+        // When: converting to Task
+        Task task = taskService.toTask((TaskDto) null); // cast null to TaskDto
+
+        // Then: the result should be null
+        assertThat(task).isNull();
+    }
+
 
     @Test
     public void testToTaskWithTaskEntity() {
@@ -121,6 +140,17 @@ public class TestTaskService {
         assertThat(task.getTitle()).isEqualTo(entity.getTitle());
         assertThat(task.getDescription()).isEqualTo(entity.getDescription());
         assertThat(task.getStatus()).isEqualTo(entity.getStatus());
+    }
+
+
+    @Test
+    void testToTaskWithNullTaskEntity() {
+        // Given: a null Task entity
+        // When: converting to Task (DTO to entity overload)
+        Task task = taskService.toTask((TaskEntity) null); // cast null to Task
+
+        // Then: the result should be null
+        assertThat(task).isNull();
     }
 
     @Test
