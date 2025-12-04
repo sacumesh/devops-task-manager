@@ -80,12 +80,16 @@ public class TaskService {
         return toTask(taskEntity);
     }
 
-    public void deleteTask(@NonNull Task task) {
-        log.info("Deleting task with ID: {}", task.getId());
+    public void deleteTask(@NonNull Long taskId) {
+        log.info("Deleting task with ID: {}", taskId);
 
-        this.taskRepository.deleteById(task.getId());
 
-        log.debug("Task deleted: {}", task);
+        TaskEntity entity = this.taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+
+        this.taskRepository.delete(entity);
+
+        log.debug("Task deleted: {}", entity);
     }
 
     public Task updateTask(@NonNull Task task) {

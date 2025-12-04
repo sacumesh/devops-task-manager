@@ -215,33 +215,40 @@ public class TestTaskService {
 
     @Test
     public void deleteTask() {
-        // No need to check deletion of non-existent ID:
-        // Spring Data JPA deleteById is idempotent and does nothing if the entity does not exist,
-        // so there is no exception or side effect to verify.
-
         // Given: a persisted TaskEntity
-        TaskEntity taskEntity = TaskEntity.builder()
+        TaskEntity entity = TaskEntity.builder()
                 .title("Test Task")
                 .description("Test description")
                 .status(TaskStatus.TODO)
                 .build();
 
-        TaskEntity savedEntity = this.taskRepository.save(taskEntity);
+        TaskEntity savedEntity = this.taskRepository.save(entity);
 
-        // And a Task model representing the same entity
-        Task task = Task.builder()
-                .id(savedEntity.getId())
-                .title(savedEntity.getTitle())
-                .description(savedEntity.getDescription())
-                .status(savedEntity.getStatus())
-                .build();
 
         // When: deleting the task via service
-        this.taskService.deleteTask(task);
+        this.taskService.deleteTask(savedEntity.getId());
 
         // Then: the entity should no longer exist in the repository
         boolean exists = this.taskRepository.existsById(savedEntity.getId());
         assertThat(exists).isFalse();
+
+    }
+
+    @Test
+    public void deleteTaskNonExistingTask() {
+
+        // Given: a task ID that does not exist
+        Long taskId = 1L;
+        this.taskRepository.deleteById(taskId);
+
+        // When & Then: deleting should throw TaskNotFoundException
+        TaskNotFoundException exception = assertThrows(
+                TaskNotFoundException.class,
+                () -> this.taskService.deleteTask(taskId)
+        );
+
+        // Optional: verify the exception message
+        assertThat(exception.getMessage()).isEqualTo("Task not found with ID: " + taskId);
 
     }
 

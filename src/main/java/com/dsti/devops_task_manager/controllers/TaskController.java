@@ -48,6 +48,12 @@ public class TaskController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<@NonNull Void> deleteTask(@PathVariable @NonNull Long id) {
+        this.taskService.deleteTask(id);
+        return ResponseEntity.ok().build();
+    }
+
 
     @ExceptionHandler(TaskNotFoundException.class)
     public ResponseEntity<@NonNull ErrorDto> handleTaskNotFound(TaskNotFoundException ex) {

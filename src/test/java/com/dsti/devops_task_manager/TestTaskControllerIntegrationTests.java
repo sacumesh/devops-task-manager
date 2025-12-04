@@ -111,4 +111,35 @@ public class TestTaskControllerIntegrationTests {
     }
 
 
+    @Test
+    void testDeleteTask() throws Exception {
+        // Given: an existing task in the DB
+        TaskEntity task = TaskEntity.builder()
+                .title("Old Title")
+                .description("Old description")
+                .status(TaskStatus.TODO)
+                .build();
+
+        TaskEntity entity = this.taskRepository.save(task);
+
+        mockMvc.perform(delete(api + "/" + entity.getId()))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testDeleteTaskNonExistingTask() throws Exception {
+
+        // Given a task id that doesn't exist
+        Long taskId = 1L;
+        this.taskRepository.deleteById(taskId);
+
+        // When + Then
+        mockMvc.perform(delete(api + "/" + taskId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Task not found with ID: " + taskId))
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.timestamp").isNotEmpty());
+    }
+
+
 }
