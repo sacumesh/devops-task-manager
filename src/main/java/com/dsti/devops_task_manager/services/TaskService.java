@@ -57,4 +57,9 @@ public class TaskService {
     }
 
 
+    public void deleteTask(@NonNull Task task) {
+        this.taskRepository.deleteById(task.getId());
+    }
+
+
 }

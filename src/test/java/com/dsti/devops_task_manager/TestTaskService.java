@@ -140,4 +140,37 @@ public class TestTaskService {
         // Then: verify task is null
         assertThat(task).isNull();
     }
+
+
+    @Test
+    public void deleteTask() {
+        // No need to check deletion of non-existent ID:
+        // Spring Data JPA deleteById is idempotent and does nothing if the entity does not exist,
+        // so there is no exception or side effect to verify.
+
+        // Given: a persisted TaskEntity
+        TaskEntity taskEntity = TaskEntity.builder()
+                .title("Test Task")
+                .description("Test description")
+                .status(TaskStatus.TODO)
+                .build();
+
+        TaskEntity savedEntity = taskRepository.save(taskEntity);
+
+        // And a Task model representing the same entity
+        Task task = Task.builder()
+                .id(savedEntity.getId())
+                .title(savedEntity.getTitle())
+                .description(savedEntity.getDescription())
+                .status(savedEntity.getStatus())
+                .build();
+
+        // When: deleting the task via service
+        taskService.deleteTask(task);
+
+        // Then: the entity should no longer exist in the repository
+        boolean exists = taskRepository.existsById(savedEntity.getId());
+        assertThat(exists).isFalse();
+
+    }
 }
