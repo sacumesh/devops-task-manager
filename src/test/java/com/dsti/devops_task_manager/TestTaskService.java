@@ -60,7 +60,7 @@ public class TestTaskService {
 
 
     @Test
-    void testToWithTaskDtoWithNull() {
+    void testToTaskWithTaskDtoWithNull() {
         // Given: a null TaskDto
         // When: converting to Task
         Task task = taskService.toTask((TaskDto) null); // cast null to TaskDto
