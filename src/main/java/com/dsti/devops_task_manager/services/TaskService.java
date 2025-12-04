@@ -62,4 +62,13 @@ public class TaskService {
     }
 
 
+    public Task updateTask(@NonNull Task task) {
+        TaskEntity taskEntity = toTaskEntity(task);
+
+        TaskEntity updatedEntity = this.taskRepository.save(taskEntity);
+        
+        return toTask(updatedEntity);
+    }
+
+
 }

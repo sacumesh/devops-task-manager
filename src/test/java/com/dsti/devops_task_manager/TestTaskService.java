@@ -173,4 +173,36 @@ public class TestTaskService {
         assertThat(exists).isFalse();
 
     }
+
+    @Test
+    public void testUpdateTask() {
+        // Given: a TaskEntity persisted in the database
+        TaskEntity entity = TaskEntity.builder()
+                .title("Original Title")
+                .description("Original Description")
+                .status(TaskStatus.TODO)
+                .build();
+
+        TaskEntity savedEntity = taskRepository.save(entity);
+
+        // And a Task model representing the same entity with updated fields
+        Task task = Task.builder()
+                .id(savedEntity.getId())
+                .title("Updated Title")
+                .description("Updated Description")
+                .status(TaskStatus.COMPLETED)
+                .build();
+
+        // When: updating the task via the service
+        Task updatedTask = taskService.updateTask(task);
+
+        // Then: verify returned task has the updated fields
+        assertThat(updatedTask).isNotNull();
+        assertThat(updatedTask.getId()).isEqualTo(savedEntity.getId());
+        assertThat(updatedTask.getTitle()).isEqualTo("Updated Title");
+        assertThat(updatedTask.getDescription()).isEqualTo("Updated Description");
+        assertThat(updatedTask.getStatus()).isEqualTo(TaskStatus.COMPLETED);
+
+
+    }
 }
