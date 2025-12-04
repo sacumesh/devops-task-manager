@@ -7,6 +7,7 @@ import lombok.*;
 @Table(name = "task")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskEntity {
