@@ -1,10 +1,7 @@
 package com.dsti.devops_task_manager.entities;
-import com.dsti.devops_task_manager.TaskStatus;
+import com.dsti.devops_task_manager.enums.TaskStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "task")
