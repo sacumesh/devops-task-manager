@@ -58,8 +58,11 @@ public class TaskService {
         log.info("Creating task with title: {}", task.getTitle());
 
         TaskEntity taskEntity = toTaskEntity(task);
+
         // New task
         taskEntity.setStatus(TaskStatus.TODO);
+        taskEntity.setId(null);
+
         TaskEntity savedEntity = this.taskRepository.save(taskEntity);
 
         log.debug("Task created with ID: {}", savedEntity.getId());
