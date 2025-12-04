@@ -1,6 +1,7 @@
 package com.dsti.devops_task_manager;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Table;
 import jakarta.persistence.metamodel.EntityType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class EntityTableIntegrationTest {
         // Test entities are properly mapped and that tables are being created in your test database.
         for (EntityType<?> entityType : entityManager.getMetamodel().getEntities()) {
 
-            String tableName = entityType.getName().toUpperCase();
+            String tableName = getString(entityType);
 
             Integer count = jdbcTemplate.queryForObject(
                     "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = ?",
@@ -40,5 +41,15 @@ public class EntityTableIntegrationTest {
                     .isGreaterThan(0);
 
         }
+    }
+
+    private static String getString(EntityType<?> entityType) {
+        Table tableAnnotation = entityType.getJavaType().getAnnotation(Table.class);
+
+        // Determine the table name to use in the database check:
+        // - If the entity has a @Table annotation, use its "name" attribute (converted to uppercase for H2 compatibility)
+        // - If there is no @Table annotation, fall back to using the entity class name itself (also converted to uppercase)
+        return (tableAnnotation != null) ? tableAnnotation.name().toUpperCase()
+                : entityType.getName().toUpperCase();
     }
 }
