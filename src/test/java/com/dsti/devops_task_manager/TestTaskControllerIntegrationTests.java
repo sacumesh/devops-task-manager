@@ -142,4 +142,39 @@ public class TestTaskControllerIntegrationTests {
     }
 
 
+    @Test
+    void testGetAllTasks() throws Exception {
+
+        // Given: save some tasks in the repository
+        TaskEntity task1 = TaskEntity.builder()
+                .title("Task 1")
+                .description("First task")
+                .status(TaskStatus.TODO)
+                .build();
+
+        TaskEntity task2 = TaskEntity.builder()
+                .title("Task 2")
+                .description("Second task")
+                .status(TaskStatus.COMPLETED)
+                .build();
+
+        this.taskRepository.deleteAll();
+        taskRepository.save(task1);
+        taskRepository.save(task2);
+
+        // When + Then: perform GET request and check JSON response
+        mockMvc.perform(get(this.api)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].title").value("Task 1"))
+                .andExpect(jsonPath("$[0].description").value("First task"))
+                .andExpect(jsonPath("$[0].status").value("TODO"))
+                .andExpect(jsonPath("$[1].title").value("Task 2"))
+                .andExpect(jsonPath("$[1].description").value("Second task"))
+                .andExpect(jsonPath("$[1].status").value("COMPLETED"));
+    }
+
+
 }

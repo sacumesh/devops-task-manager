@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -52,6 +54,15 @@ public class TaskController {
     public ResponseEntity<@NonNull Void> deleteTask(@PathVariable @NonNull Long id) {
         this.taskService.deleteTask(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("")
+    public ResponseEntity<@NonNull List<TaskDto>> getAllTasks() {
+        List<TaskDto> dtos = taskService.getAllTasks().stream()
+                .map(taskService::toTaskDto)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
     }
 
 
