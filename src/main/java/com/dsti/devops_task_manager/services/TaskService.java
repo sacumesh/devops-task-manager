@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class TaskService {
@@ -66,8 +68,16 @@ public class TaskService {
         TaskEntity taskEntity = toTaskEntity(task);
 
         TaskEntity updatedEntity = this.taskRepository.save(taskEntity);
-        
+
         return toTask(updatedEntity);
+    }
+
+    public List<Task> getAllTasks() {
+        List<TaskEntity> taskEntities = this.taskRepository.findAll();
+
+        return taskEntities.stream()
+                .map(this::toTask)
+                .toList();
     }
 
 

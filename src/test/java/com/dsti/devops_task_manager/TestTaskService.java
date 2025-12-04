@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -204,5 +206,38 @@ public class TestTaskService {
         assertThat(updatedTask.getStatus()).isEqualTo(TaskStatus.COMPLETED);
 
 
+    }
+
+
+    @Test
+    void testGetAllTasks() {
+        // Given: a few TaskEntity objects persisted in the database
+        TaskEntity taskEntity1 = TaskEntity.builder()
+                .title("Task 1")
+                .description("Description 1")
+                .status(TaskStatus.TODO)
+                .build();
+
+        TaskEntity taskEntity2 = TaskEntity.builder()
+                .title("Task 2")
+                .description("Description 2")
+                .status(TaskStatus.COMPLETED)
+                .build();
+
+        // Ensures only the new tasks exist the service using the repository
+        taskRepository.deleteAll();
+
+        TaskEntity savedTaskEntity1 = taskRepository.save(taskEntity1);
+        TaskEntity savedTaskEntity2 = taskRepository.save(taskEntity2);
+
+        // When: retrieving all tasks via the service
+        List<Task> tasks = taskService.getAllTasks();
+
+        // Then: verify the list contains all persisted tasks
+        assertThat(tasks).isNotNull();
+        assertThat(tasks).hasSize(2);
+
+        assertThat(tasks).extracting(Task::getId)
+                .containsExactlyInAnyOrder(savedTaskEntity1.getId(), savedTaskEntity2.getId());
     }
 }
