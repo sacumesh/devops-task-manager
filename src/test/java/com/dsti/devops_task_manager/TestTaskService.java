@@ -286,6 +286,28 @@ public class TestTaskService {
 
 
     @Test
+    public void testUpdateTaskWithNonExistingTask() {
+
+        // Given: a task ID that does not exist
+        Long taskId = 1L;
+        Task task = Task.builder()
+                .id(taskId)
+                .build();
+        this.taskRepository.deleteById(taskId);
+
+        // When & Then: deleting should throw TaskNotFoundException
+        TaskNotFoundException exception = assertThrows(
+                TaskNotFoundException.class,
+                () -> this.taskService.updateTask(task)
+        );
+
+        // Optional: verify the exception message
+        assertThat(exception.getMessage()).isEqualTo("Task not found with ID: " + taskId);
+
+    }
+
+
+    @Test
     void testGetAllTasks() {
         // Given: a few TaskEntity objects persisted in the database
         TaskEntity taskEntity1 = TaskEntity.builder()
