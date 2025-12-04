@@ -3,6 +3,7 @@ package com.dsti.devops_task_manager.services;
 
 import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
+import com.dsti.devops_task_manager.exceptions.TaskCreationException;
 import com.dsti.devops_task_manager.models.Task;
 import com.dsti.devops_task_manager.repositories.TaskRepository;
 import lombok.AllArgsConstructor;
@@ -56,11 +57,15 @@ public class TaskService {
         log.info("Creating task with title: {}", task.getTitle());
 
         TaskEntity taskEntity = toTaskEntity(task);
-        TaskEntity savedEntity = this.taskRepository.save(taskEntity);
+        try {
+            TaskEntity savedEntity = this.taskRepository.save(taskEntity);
+            log.debug("Task created with ID: {}", savedEntity.getId());
 
-        log.debug("Task created with ID: {}", savedEntity.getId());
-
-        return toTask(savedEntity);
+            return toTask(savedEntity);
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+            throw new TaskCreationException(ex.getMessage(), ex);
+        }
     }
 
 
