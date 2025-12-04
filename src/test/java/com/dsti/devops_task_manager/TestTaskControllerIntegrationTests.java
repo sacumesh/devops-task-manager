@@ -35,6 +35,42 @@ public class TestTaskControllerIntegrationTests {
                 .andExpect(jsonPath("$.status").value("UP"));
     }
 
+    @Test
+    void testGetTask() throws Exception {
+        // Given: an existing task in the DB
+        TaskEntity task = TaskEntity.builder()
+                .title("Sample Task")
+                .description("Task description")
+                .status(TaskStatus.TODO)
+                .build();
+
+        TaskEntity saved = taskRepository.save(task);
+
+        // When + Then: perform GET request
+        mockMvc.perform(get(api + "/" + saved.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(saved.getId()))
+                .andExpect(jsonPath("$.title").value("Sample Task"))
+                .andExpect(jsonPath("$.description").value("Task description"))
+                .andExpect(jsonPath("$.status").value("TODO"));
+    }
+
+
+    @Test
+    void testGetTaskWithNonExistingTask() throws Exception {
+        // Given: a task ID that doesn't exist
+        Long taskId = 1L;
+        this.taskRepository.deleteById(taskId);
+
+        // When + Then: expect TaskNotFoundException handled by your @RestControllerAdvice
+        mockMvc.perform(get(api + "/" + taskId))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Task not found with ID: " + taskId))
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.timestamp").isNotEmpty());
+    }
+
 
     @Test
     void testCreateTask() throws Exception {

@@ -174,7 +174,7 @@ public class TestTaskService {
     }
 
     @Test
-    public void testGetTaskByIdWithExistingTask() {
+    public void testGetTask() {
         // Given: a TaskEntity persisted in the repository
         TaskEntity taskEntity = TaskEntity.builder()
                 .title("Test Task")
@@ -185,7 +185,7 @@ public class TestTaskService {
         TaskEntity savedEntity = this.taskRepository.save(taskEntity);
 
         // When: retrieving task by ID using the service
-        Task task = this.taskService.getTaskById(savedEntity.getId());
+        Task task = this.taskService.getTask(savedEntity.getId());
 
         // Then: verify task is returned and fields match
         assertThat(task).isNotNull();
@@ -197,19 +197,20 @@ public class TestTaskService {
 
 
     @Test
-    public void testGetTaskByIdWithNonExistingTask() {
+    public void testGetTaskWithNonExistingTask() {
 
         // Given: ensure the task with ID 2L does not exist
-        this.taskRepository.deleteById(2L);
+        Long taskId = 1L;
+        this.taskRepository.deleteById(taskId);
 
         // When & Then: retrieving task by ID should throw TaskNotFoundException
         TaskNotFoundException exception = assertThrows(
                 TaskNotFoundException.class,
-                () -> this.taskService.getTaskById(2L)
+                () -> this.taskService.getTask(taskId)
         );
 
         // Optionally: verify exception message
-        assertThat(exception.getMessage()).contains("Task not found with ID: 2");
+        assertThat(exception.getMessage()).contains("Task not found with ID: %d".formatted(taskId));
     }
 
 

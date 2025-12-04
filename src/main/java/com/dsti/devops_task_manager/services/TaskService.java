@@ -67,7 +67,7 @@ public class TaskService {
         return toTask(savedEntity);
     }
 
-    public Task getTaskById(Long id) {
+    public Task getTask(@NonNull Long id) {
         log.info("Fetching task by ID: {}", id);
 
         TaskEntity taskEntity = this.taskRepository.findById(id)

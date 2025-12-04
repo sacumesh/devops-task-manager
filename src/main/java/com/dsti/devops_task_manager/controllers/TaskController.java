@@ -32,6 +32,14 @@ public class TaskController {
         return ResponseEntity.ok(Health.status(Status.UP).build());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<@NonNull TaskDto> getTask(@PathVariable @NonNull Long id) {
+        Task task = this.taskService.getTask(id);
+        TaskDto responseDto = this.taskService.toTaskDto(task);
+        
+        return ResponseEntity.ok(responseDto);
+    }
+
     @PostMapping
     public ResponseEntity<@NonNull TaskDto> createTask(@RequestBody TaskDto taskDto) {
         Task task = this.taskService.toTask(taskDto);
