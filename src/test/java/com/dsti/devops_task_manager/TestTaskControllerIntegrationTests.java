@@ -86,7 +86,7 @@ public class TestTaskControllerIntegrationTests {
     }
 
     @Test
-    void testUpdateTaskWithoutId() throws Exception {
+    void testUpdateTaskWithNonExistingTask() throws Exception {
 
         // Given a Task that doesnt exist
         Long taskId = 1L;
