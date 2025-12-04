@@ -1,6 +1,7 @@
 package com.dsti.devops_task_manager.services;
 
 
+import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
 import com.dsti.devops_task_manager.models.Task;
 import com.dsti.devops_task_manager.repositories.TaskRepository;
@@ -62,6 +63,7 @@ public class TaskService {
         return toTask(savedEntity);
     }
 
+
     public Task getTaskById(Long id) {
         log.info("Fetching task by ID: {}", id);
 
@@ -105,6 +107,41 @@ public class TaskService {
         return taskEntities.stream()
                 .map(this::toTask)
                 .toList();
+    }
+
+    public Task toTask(TaskDto taskDto) {
+        if (taskDto == null) {
+            log.warn("toTask() called with null taskDto");
+            return null;
+        }
+
+        log.debug("Converting TaskDto to Task: {}", taskDto);
+
+        return Task.builder()
+                .id(taskDto.getId())
+                .title(taskDto.getTitle())
+                .description(taskDto.getDescription())
+                .status(taskDto.getStatus())
+                .build();
+    }
+
+
+    public TaskDto toTaskDto(Task task) {
+        if (task == null) {
+            log.warn("toTaskDto() called with null task");
+            return null;
+        }
+
+
+        log.debug("Converting Task to TaskDto: {}", task);
+
+        return TaskDto
+                .builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .status(task.getStatus())
+                .build();
     }
 
 

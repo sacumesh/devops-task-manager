@@ -1,6 +1,7 @@
 package com.dsti.devops_task_manager;
 
 
+import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
 import com.dsti.devops_task_manager.enums.TaskStatus;
 import com.dsti.devops_task_manager.models.Task;
@@ -59,17 +60,50 @@ public class TestTaskService {
 
 
     @Test
-    void testToTaskWithNull() {
-        // Given: a null TaskEntity
+    void testToWithTaskDtoWithNull() {
+        // Given: a null TaskDto
         // When: converting to Task
-        Task task = taskService.toTask(null);
+        Task task = taskService.toTask((TaskDto) null); // cast null to TaskDto
 
         // Then: the result should be null
         assertThat(task).isNull();
     }
 
     @Test
-    public void testToTaskWithNonnull() {
+    void testToTaskWithTaskEntityWithNull() {
+        // Given: a null Task entity
+        // When: converting to Task (DTO to entity overload)
+        Task task = taskService.toTask((TaskEntity) null); // cast null to Task
+
+        // Then: the result should be null
+        assertThat(task).isNull();
+    }
+
+
+    @Test
+    public void testToTaskWithTaskDto() {
+        // Given: a Task Dto
+        TaskDto dto = TaskDto.builder()
+                .id(1L)
+                .title("Test Task")
+                .description("This is a test")
+                .status(TaskStatus.COMPLETED)
+                .build();
+
+        // When: converting to Task
+        Task task = taskService.toTask(dto);
+
+        // Then: verify all fields are correctly mapped
+        assertThat(task).isNotNull();
+        assertThat(task.getId()).isEqualTo(dto.getId());
+        assertThat(task.getTitle()).isEqualTo(dto.getTitle());
+        assertThat(task.getDescription()).isEqualTo(dto.getDescription());
+        assertThat(task.getStatus()).isEqualTo(dto.getStatus());
+    }
+
+
+    @Test
+    public void testToTaskWithTaskEntity() {
         // Given: a Task Entity
         TaskEntity entity = TaskEntity.builder()
                 .id(1L)
