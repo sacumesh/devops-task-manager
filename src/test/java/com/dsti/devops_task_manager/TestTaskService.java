@@ -40,7 +40,7 @@ public class TestTaskService {
                 .build();
 
         // When: converting to TaskEntity
-        TaskEntity entity = taskService.toTaskEntity(task);
+        TaskEntity entity = this.taskService.toTaskEntity(task);
 
         // Then: verify all fields are correctly mapped
         assertThat(entity).isNotNull();
@@ -54,7 +54,7 @@ public class TestTaskService {
     void testToTaskEntityWithNull() {
         // Given: a null Task
         // When: converting to TaskEntity
-        TaskEntity entity = taskService.toTaskEntity(null);
+        TaskEntity entity = this.taskService.toTaskEntity(null);
 
         // Then: the result should be null
         assertThat(entity).isNull();
@@ -71,7 +71,7 @@ public class TestTaskService {
                 .build();
 
         // When: converting to TaskDto
-        TaskDto dto = taskService.toTaskDto(task);
+        TaskDto dto = this.taskService.toTaskDto(task);
 
         // Then: verify all fields are correctly mapped
         assertThat(dto).isNotNull();
@@ -85,7 +85,7 @@ public class TestTaskService {
     void testToTaskDtoWithNull() {
         // Given: a null Task
         // When: converting to TaskDto
-        TaskDto dto = taskService.toTaskDto(null);
+        TaskDto dto = this.taskService.toTaskDto(null);
 
         // Then: the result should be null
         assertThat(dto).isNull();
@@ -102,7 +102,7 @@ public class TestTaskService {
                 .build();
 
         // When: converting to Task
-        Task task = taskService.toTask(dto);
+        Task task = this.taskService.toTask(dto);
 
         // Then: verify all fields are correctly mapped
         assertThat(task).isNotNull();
@@ -116,7 +116,7 @@ public class TestTaskService {
     void testToTaskWithNullTaskDto() {
         // Given: a null TaskDto
         // When: converting to Task
-        Task task = taskService.toTask((TaskDto) null); // cast null to TaskDto
+        Task task = this.taskService.toTask((TaskDto) null); // cast null to TaskDto
 
         // Then: the result should be null
         assertThat(task).isNull();
@@ -134,7 +134,7 @@ public class TestTaskService {
                 .build();
 
         // When: converting to Task
-        Task task = taskService.toTask(entity);
+        Task task = this.taskService.toTask(entity);
 
         // Then: verify all fields are correctly mapped
         assertThat(task).isNotNull();
@@ -149,7 +149,7 @@ public class TestTaskService {
     void testToTaskWithNullTaskEntity() {
         // Given: a null Task entity
         // When: converting to Task (DTO to entity overload)
-        Task task = taskService.toTask((TaskEntity) null); // cast null to Task
+        Task task = this.taskService.toTask((TaskEntity) null); // cast null to Task
 
         // Then: the result should be null
         assertThat(task).isNull();
@@ -165,7 +165,7 @@ public class TestTaskService {
                 .build();
 
         // When: creating the task
-        Task createdTask = taskService.createTask(task);
+        Task createdTask = this.taskService.createTask(task);
 
         // Then: verify returned task has an id and fields match
         assertThat(createdTask.getId()).isNotNull();
@@ -183,10 +183,10 @@ public class TestTaskService {
                 .status(TaskStatus.TODO)
                 .build();
 
-        TaskEntity savedEntity = taskRepository.save(taskEntity);
+        TaskEntity savedEntity = this.taskRepository.save(taskEntity);
 
         // When: retrieving task by ID using the service
-        Task task = taskService.getTaskById(savedEntity.getId());
+        Task task = this.taskService.getTaskById(savedEntity.getId());
 
         // Then: verify task is returned and fields match
         assertThat(task).isNotNull();
@@ -227,7 +227,7 @@ public class TestTaskService {
                 .status(TaskStatus.TODO)
                 .build();
 
-        TaskEntity savedEntity = taskRepository.save(taskEntity);
+        TaskEntity savedEntity = this.taskRepository.save(taskEntity);
 
         // And a Task model representing the same entity
         Task task = Task.builder()
@@ -238,10 +238,10 @@ public class TestTaskService {
                 .build();
 
         // When: deleting the task via service
-        taskService.deleteTask(task);
+        this.taskService.deleteTask(task);
 
         // Then: the entity should no longer exist in the repository
-        boolean exists = taskRepository.existsById(savedEntity.getId());
+        boolean exists = this.taskRepository.existsById(savedEntity.getId());
         assertThat(exists).isFalse();
 
     }
@@ -255,7 +255,7 @@ public class TestTaskService {
                 .status(TaskStatus.TODO)
                 .build();
 
-        TaskEntity savedEntity = taskRepository.save(entity);
+        TaskEntity savedEntity = this.taskRepository.save(entity);
 
         // And a Task model representing the same entity with updated fields
         Task task = Task.builder()
@@ -266,7 +266,7 @@ public class TestTaskService {
                 .build();
 
         // When: updating the task via the service
-        Task updatedTask = taskService.updateTask(task);
+        Task updatedTask = this.taskService.updateTask(task);
 
         // Then: verify returned task has the updated fields
         assertThat(updatedTask).isNotNull();
@@ -295,13 +295,13 @@ public class TestTaskService {
                 .build();
 
         // Ensures only the new tasks exist the service using the repository
-        taskRepository.deleteAll();
+        this.taskRepository.deleteAll();
 
-        TaskEntity savedTaskEntity1 = taskRepository.save(taskEntity1);
-        TaskEntity savedTaskEntity2 = taskRepository.save(taskEntity2);
+        TaskEntity savedTaskEntity1 = this.taskRepository.save(taskEntity1);
+        TaskEntity savedTaskEntity2 = this.taskRepository.save(taskEntity2);
 
         // When: retrieving all tasks via the service
-        List<Task> tasks = taskService.getAllTasks();
+        List<Task> tasks = this.taskService.getAllTasks();
 
         // Then: verify the list contains all persisted tasks
         assertThat(tasks).isNotNull();

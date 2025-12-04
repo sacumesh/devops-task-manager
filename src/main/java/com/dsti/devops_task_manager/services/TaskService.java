@@ -67,7 +67,7 @@ public class TaskService {
     public Task getTaskById(Long id) {
         log.info("Fetching task by ID: {}", id);
 
-        TaskEntity taskEntity = taskRepository.findById(id)
+        TaskEntity taskEntity = this.taskRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Task not found with ID: {}", id);
                     return new TaskNotFoundException("Task not found with ID: " + id);
