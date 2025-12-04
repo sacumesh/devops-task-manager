@@ -19,6 +19,7 @@ public class TestTaskService {
     @Autowired
     TaskService taskService;
 
+
     @Test
     void testToTaskEntityWithNull() {
         // Given: a null Task
@@ -80,5 +81,23 @@ public class TestTaskService {
         assertThat(task.getTitle()).isEqualTo(entity.getTitle());
         assertThat(task.getDescription()).isEqualTo(entity.getDescription());
         assertThat(task.getStatus()).isEqualTo(entity.getStatus());
+    }
+
+    @Test
+    public void testCreateTask() {
+        Task task = Task.builder()
+                .title("Test Task")
+                .description("This is a test")
+                .status(TaskStatus.TODO)
+                .build();
+
+        // When: creating the task
+        Task createdTask = taskService.createTask(task);
+
+        // Then: verify returned task has an id and fields match
+        assertThat(createdTask.getId()).isNotNull();
+        assertThat(createdTask.getTitle()).isEqualTo(task.getTitle());
+        assertThat(createdTask.getDescription()).isEqualTo(task.getDescription());
+        assertThat(createdTask.getStatus()).isEqualTo(task.getStatus());
     }
 }

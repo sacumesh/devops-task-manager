@@ -3,10 +3,16 @@ package com.dsti.devops_task_manager.services;
 
 import com.dsti.devops_task_manager.entities.TaskEntity;
 import com.dsti.devops_task_manager.models.Task;
+import com.dsti.devops_task_manager.repositories.TaskRepository;
+import lombok.AllArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class TaskService {
+
+    final TaskRepository taskRepository;
 
 
     public TaskEntity toTaskEntity(Task task) {
@@ -34,6 +40,14 @@ public class TaskService {
                 .description(taskEntity.getDescription())
                 .status(taskEntity.getStatus())
                 .build();
+    }
+
+    public Task createTask(@NonNull Task task) {
+        TaskEntity taskEntity = toTaskEntity(task);
+
+        TaskEntity savedEntity = this.taskRepository.save(taskEntity);
+
+        return toTask(savedEntity);
     }
 
 
