@@ -1,15 +1,18 @@
 package com.dsti.devops_task_manager;
 
+import com.dsti.devops_task_manager.entities.TaskEntity;
 import com.dsti.devops_task_manager.enums.TaskStatus;
+import com.dsti.devops_task_manager.repositories.TaskRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -21,6 +24,9 @@ public class TestTaskControllerIntegrationTests {
     private final String api = "/api/tasks";
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Test
     void testHealthCheck() throws Exception {
@@ -47,4 +53,62 @@ public class TestTaskControllerIntegrationTests {
                 .andExpect(jsonPath("$.description").value("This is a test"))
                 .andExpect(jsonPath("$.status").value(TaskStatus.TODO.toString()));
     }
+
+
+    @Test
+    void testUpdateTask() throws Exception {
+
+        // Given: an existing task in the DB
+        TaskEntity task = TaskEntity.builder()
+                .title("Old Title")
+                .description("Old description")
+                .status(TaskStatus.TODO)
+                .build();
+
+        TaskEntity saved = this.taskRepository.save(task);
+
+        // When + Then
+        mockMvc.perform(put(this.api)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("""
+                                {
+                                    "id": %d,
+                                    "title": "Updated Task",
+                                    "description": "Updated description",
+                                    "status": "COMPLETED"
+                                }
+                                """.formatted(saved.getId())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(saved.getId()))
+                .andExpect(jsonPath("$.title").value("Updated Task"))
+                .andExpect(jsonPath("$.description").value("Updated description"))
+                .andExpect(jsonPath("$.status").value("COMPLETED"));
+    }
+
+    @Test
+    void testUpdateTaskWithoutId() throws Exception {
+
+        // Given a Task that doesnt exist
+        Long taskId = 1L;
+        this.taskRepository.deleteById(taskId);
+
+
+        // When + Then
+        mockMvc.perform(put(this.api)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("""
+                                {
+                                    "id": %d,
+                                    "title": "Updated Task",
+                                    "description": "Updated description",
+                                    "status": "COMPLETED"
+                                }
+                                """.formatted(taskId)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Task not found with ID: %d".formatted(taskId)))
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.timestamp").isNotEmpty());
+    }
+
+
 }

@@ -91,8 +91,16 @@ public class TaskService {
     public Task updateTask(@NonNull Task task) {
         log.info("Updating task with ID: {}", task.getId());
 
-        TaskEntity taskEntity = toTaskEntity(task);
-        TaskEntity updatedEntity = this.taskRepository.save(taskEntity);
+
+        TaskEntity entity = this.taskRepository.findById(task.getId())
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + task.getId()));
+
+
+        entity.setTitle(task.getTitle());
+        entity.setDescription(task.getDescription());
+        entity.setStatus(task.getStatus());
+
+        TaskEntity updatedEntity = this.taskRepository.save(entity);
 
         log.debug("Task updated: {}", updatedEntity);
 
