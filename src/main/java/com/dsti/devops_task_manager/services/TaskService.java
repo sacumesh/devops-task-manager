@@ -3,6 +3,7 @@ package com.dsti.devops_task_manager.services;
 
 import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
+import com.dsti.devops_task_manager.exceptions.TaskNotFoundException;
 import com.dsti.devops_task_manager.models.Task;
 import com.dsti.devops_task_manager.repositories.TaskRepository;
 import lombok.AllArgsConstructor;
@@ -63,18 +64,16 @@ public class TaskService {
         return toTask(savedEntity);
     }
 
-
     public Task getTaskById(Long id) {
         log.info("Fetching task by ID: {}", id);
 
-        TaskEntity taskEntity = this.taskRepository.findById(id).orElse(null);
+        TaskEntity taskEntity = taskRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Task not found with ID: {}", id);
+                    return new TaskNotFoundException("Task not found with ID: " + id);
+                });
 
-        if (taskEntity == null) {
-            log.warn("Task not found with ID: {}", id);
-        } else {
-            log.debug("Task retrieved: {}", taskEntity);
-        }
-
+        log.debug("Task retrieved: {}", taskEntity);
         return toTask(taskEntity);
     }
 

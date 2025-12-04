@@ -4,6 +4,7 @@ package com.dsti.devops_task_manager;
 import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
 import com.dsti.devops_task_manager.enums.TaskStatus;
+import com.dsti.devops_task_manager.exceptions.TaskNotFoundException;
 import com.dsti.devops_task_manager.models.Task;
 import com.dsti.devops_task_manager.repositories.TaskRepository;
 import com.dsti.devops_task_manager.services.TaskService;
@@ -15,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -197,14 +199,18 @@ public class TestTaskService {
 
     @Test
     public void testGetTaskByIdWithNonExistingTask() {
+
         // Given: ensure the task with ID 2L does not exist
-        taskRepository.deleteById(2L);
+        this.taskRepository.deleteById(2L);
 
-        // When: retrieving task by ID using the service
-        Task task = taskService.getTaskById(2L);
+        // When & Then: retrieving task by ID should throw TaskNotFoundException
+        TaskNotFoundException exception = assertThrows(
+                TaskNotFoundException.class,
+                () -> this.taskService.getTaskById(2L)
+        );
 
-        // Then: verify task is null
-        assertThat(task).isNull();
+        // Optionally: verify exception message
+        assertThat(exception.getMessage()).contains("Task not found with ID: 2");
     }
 
 
