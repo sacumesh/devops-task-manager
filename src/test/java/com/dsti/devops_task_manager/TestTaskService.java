@@ -215,7 +215,7 @@ public class TestTaskService {
 
 
     @Test
-    public void testdeleteTask() {
+    public void testDeleteTask() {
         // Given: a persisted TaskEntity
         TaskEntity entity = TaskEntity.builder()
                 .title("Test Task")
@@ -236,7 +236,7 @@ public class TestTaskService {
     }
 
     @Test
-    public void testdeleteTaskNonExistingTask() {
+    public void testDeleteTaskNonExistingTask() {
 
         // Given: a task ID that does not exist
         Long taskId = 1L;
