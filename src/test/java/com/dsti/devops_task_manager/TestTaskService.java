@@ -25,7 +25,7 @@ public class TestTaskService {
         // When: converting to TaskEntity
         TaskEntity entity = taskService.toTaskEntity(null);
 
-        // Then: the result should be null (or whatever your method is supposed to return)
+        // Then: the result should be null
         assertThat(entity).isNull();
     }
 
@@ -48,5 +48,37 @@ public class TestTaskService {
         assertThat(entity.getTitle()).isEqualTo(task.getTitle());
         assertThat(entity.getDescription()).isEqualTo(task.getDescription());
         assertThat(entity.getStatus()).isEqualTo(task.getStatus());
+    }
+
+
+    @Test
+    void testToTaskWithNull() {
+        // Given: a null TaskEntity
+        // When: converting to Task
+        Task task = taskService.toTask(null);
+
+        // Then: the result should be null
+        assertThat(task).isNull();
+    }
+
+    @Test
+    public void testToTaskWithNonnull() {
+        // Given: a Task Entity
+        TaskEntity entity = TaskEntity.builder()
+                .id(1L)
+                .title("Test Task")
+                .description("This is a test")
+                .status(TaskStatus.COMPLETED)
+                .build();
+
+        // When: converting to Task
+        Task task = taskService.toTask(entity);
+
+        // Then: verify all fields are correctly mapped
+        assertThat(task).isNotNull();
+        assertThat(task.getId()).isEqualTo(entity.getId());
+        assertThat(task.getTitle()).isEqualTo(entity.getTitle());
+        assertThat(task.getDescription()).isEqualTo(entity.getDescription());
+        assertThat(task.getStatus()).isEqualTo(entity.getStatus());
     }
 }
