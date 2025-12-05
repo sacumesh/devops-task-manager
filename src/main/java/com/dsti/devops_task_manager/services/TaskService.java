@@ -1,7 +1,10 @@
 package com.dsti.devops_task_manager.services;
 
 
+import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
+import com.dsti.devops_task_manager.enums.TaskStatus;
+import com.dsti.devops_task_manager.exceptions.TaskNotFoundException;
 import com.dsti.devops_task_manager.models.Task;
 import com.dsti.devops_task_manager.repositories.TaskRepository;
 import lombok.AllArgsConstructor;
@@ -55,6 +58,11 @@ public class TaskService {
         log.info("Creating task with title: {}", task.getTitle());
 
         TaskEntity taskEntity = toTaskEntity(task);
+
+        // New task
+        taskEntity.setStatus(TaskStatus.TODO);
+        taskEntity.setId(null);
+
         TaskEntity savedEntity = this.taskRepository.save(taskEntity);
 
         log.debug("Task created with ID: {}", savedEntity.getId());
@@ -62,33 +70,44 @@ public class TaskService {
         return toTask(savedEntity);
     }
 
-    public Task getTaskById(Long id) {
+    public Task getTask(@NonNull Long id) {
         log.info("Fetching task by ID: {}", id);
 
-        TaskEntity taskEntity = this.taskRepository.findById(id).orElse(null);
+        TaskEntity taskEntity = this.taskRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Task not found with ID: {}", id);
+                    return new TaskNotFoundException("Task not found with ID: " + id);
+                });
 
-        if (taskEntity == null) {
-            log.warn("Task not found with ID: {}", id);
-        } else {
-            log.debug("Task retrieved: {}", taskEntity);
-        }
-
+        log.debug("Task retrieved: {}", taskEntity);
         return toTask(taskEntity);
     }
 
-    public void deleteTask(@NonNull Task task) {
-        log.info("Deleting task with ID: {}", task.getId());
+    public void deleteTask(@NonNull Long taskId) {
+        log.info("Deleting task with ID: {}", taskId);
 
-        this.taskRepository.deleteById(task.getId());
 
-        log.debug("Task deleted: {}", task);
+        TaskEntity entity = this.taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+
+        this.taskRepository.delete(entity);
+
+        log.debug("Task deleted: {}", entity);
     }
 
     public Task updateTask(@NonNull Task task) {
         log.info("Updating task with ID: {}", task.getId());
 
-        TaskEntity taskEntity = toTaskEntity(task);
-        TaskEntity updatedEntity = this.taskRepository.save(taskEntity);
+
+        TaskEntity entity = this.taskRepository.findById(task.getId())
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + task.getId()));
+
+
+        entity.setTitle(task.getTitle());
+        entity.setDescription(task.getDescription());
+        entity.setStatus(task.getStatus());
+
+        TaskEntity updatedEntity = this.taskRepository.save(entity);
 
         log.debug("Task updated: {}", updatedEntity);
 
@@ -105,6 +124,41 @@ public class TaskService {
         return taskEntities.stream()
                 .map(this::toTask)
                 .toList();
+    }
+
+    public Task toTask(TaskDto taskDto) {
+        if (taskDto == null) {
+            log.warn("toTask() called with null taskDto");
+            return null;
+        }
+
+        log.debug("Converting TaskDto to Task: {}", taskDto);
+
+        return Task.builder()
+                .id(taskDto.getId())
+                .title(taskDto.getTitle())
+                .description(taskDto.getDescription())
+                .status(taskDto.getStatus())
+                .build();
+    }
+
+
+    public TaskDto toTaskDto(Task task) {
+        if (task == null) {
+            log.warn("toTaskDto() called with null task");
+            return null;
+        }
+
+
+        log.debug("Converting Task to TaskDto: {}", task);
+
+        return TaskDto
+                .builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .status(task.getStatus())
+                .build();
     }
 
 
