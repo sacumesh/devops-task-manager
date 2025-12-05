@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @Transactional
-public class TestTaskControllerIntegrationTests {
+public class TaskControllerIntegrationTests {
 
     private final String api = "/api/tasks";
     private final ObjectMapper objectMapper = new ObjectMapper();

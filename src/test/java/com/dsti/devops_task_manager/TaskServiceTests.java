@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 @ActiveProfiles("test")
 @DisplayName("TaskService integration tests")
-public class TestTaskService {
+public class TaskServiceTests {
 
     @Autowired
     TaskService taskService;
