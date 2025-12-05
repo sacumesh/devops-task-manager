@@ -1,0 +1,72 @@
+# Maven build output
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Maven local repository (if accidentally copied)
+.m2/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+*.swp
+tmp/
+temp/
+
+# Build artifacts
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar
+*.tar.gz
+
+# Docker and compose files (optional — excluded from image)
+Dockerfile
+docker-compose.yml
+
+# Git and VCS
+.git/
+.gitignore
+
+# IDE / tool specific
+*.idea/
+*.launch
+.releasenotes/
+target-*/
+
+# Environment and secret files (do not include secrets in images)
+.env
+*.env
+
+# Generated documentation and reports
+site/
+docs/
+coverage/
+jacoco.exec
+
+# Misc
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
