@@ -1,6 +1,5 @@
 package com.dsti.devops_task_manager;
 
-
 import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
 import com.dsti.devops_task_manager.enums.TaskStatus;
@@ -8,6 +7,8 @@ import com.dsti.devops_task_manager.exceptions.TaskNotFoundException;
 import com.dsti.devops_task_manager.models.Task;
 import com.dsti.devops_task_manager.repositories.TaskRepository;
 import com.dsti.devops_task_manager.services.TaskService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class TestTaskService {
+@DisplayName("TaskService integration tests")
+public class TaskServiceTests {
 
     @Autowired
     TaskService taskService;
@@ -28,8 +30,14 @@ public class TestTaskService {
     @Autowired
     TaskRepository taskRepository;
 
+    @BeforeEach
+    void cleanDatabase() {
+        // Given: a clean state before each test to avoid test interference
+        taskRepository.deleteAll();
+    }
 
     @Test
+    @DisplayName("toTaskEntity maps Task -> TaskEntity with all fields")
     public void testToTaskEntity() {
         // Given: a Task
         Task task = Task.builder()
@@ -51,6 +59,7 @@ public class TestTaskService {
     }
 
     @Test
+    @DisplayName("toTaskEntity returns null for null input")
     void testToTaskEntityWithNull() {
         // Given: a null Task
         // When: converting to TaskEntity
@@ -61,6 +70,7 @@ public class TestTaskService {
     }
 
     @Test
+    @DisplayName("toTaskDto maps Task -> TaskDto with all fields")
     public void testToTaskDto() {
         // Given: a Task model
         Task task = Task.builder()
@@ -82,6 +92,7 @@ public class TestTaskService {
     }
 
     @Test
+    @DisplayName("toTaskDto returns null for null input")
     void testToTaskDtoWithNull() {
         // Given: a null Task
         // When: converting to TaskDto
@@ -92,6 +103,7 @@ public class TestTaskService {
     }
 
     @Test
+    @DisplayName("toTask maps TaskDto -> Task with all fields")
     public void testToTaskWithTaskDto() {
         // Given: a Task Dto
         TaskDto dto = TaskDto.builder()
@@ -113,6 +125,7 @@ public class TestTaskService {
     }
 
     @Test
+    @DisplayName("toTask returns null for null TaskDto input")
     void testToTaskWithNullTaskDto() {
         // Given: a null TaskDto
         // When: converting to Task
@@ -122,8 +135,8 @@ public class TestTaskService {
         assertThat(task).isNull();
     }
 
-
     @Test
+    @DisplayName("toTask maps TaskEntity -> Task with all fields")
     public void testToTaskWithTaskEntity() {
         // Given: a Task Entity
         TaskEntity entity = TaskEntity.builder()
@@ -144,8 +157,8 @@ public class TestTaskService {
         assertThat(task.getStatus()).isEqualTo(entity.getStatus());
     }
 
-
     @Test
+    @DisplayName("toTask returns null for null TaskEntity input")
     void testToTaskWithNullTaskEntity() {
         // Given: a null Task entity
         // When: converting to Task (DTO to entity overload)
@@ -156,6 +169,7 @@ public class TestTaskService {
     }
 
     @Test
+    @DisplayName("createTask persists and returns Task with defaults")
     public void testCreateTask() {
         // Given: a new Task model to be saved
         Task task = Task.builder()
@@ -174,6 +188,7 @@ public class TestTaskService {
     }
 
     @Test
+    @DisplayName("getTask retrieves existing Task by ID")
     public void testGetTask() {
         // Given: a TaskEntity persisted in the repository
         TaskEntity taskEntity = TaskEntity.builder()
@@ -195,13 +210,11 @@ public class TestTaskService {
         assertThat(task.getStatus()).isEqualTo(savedEntity.getStatus());
     }
 
-
     @Test
+    @DisplayName("getTask throws when Task does not exist")
     public void testGetTaskWithNonExistingTask() {
-
-        // Given: ensure the task with ID 2L does not exist
-        Long taskId = 1L;
-        this.taskRepository.deleteById(taskId);
+        // Given: a task ID that is guaranteed to be absent
+        Long taskId = Long.MAX_VALUE;
 
         // When & Then: retrieving task by ID should throw TaskNotFoundException
         TaskNotFoundException exception = assertThrows(
@@ -209,12 +222,12 @@ public class TestTaskService {
                 () -> this.taskService.getTask(taskId)
         );
 
-        // Optionally: verify exception message
-        assertThat(exception.getMessage()).contains("Task not found with ID: %d".formatted(taskId));
+        // Then: verify exception message is informative and contains the ID
+        assertThat(exception.getMessage()).contains("Task not found with ID: " + taskId);
     }
 
-
     @Test
+    @DisplayName("deleteTask removes existing Task")
     public void testDeleteTask() {
         // Given: a persisted TaskEntity
         TaskEntity entity = TaskEntity.builder()
@@ -225,22 +238,19 @@ public class TestTaskService {
 
         TaskEntity savedEntity = this.taskRepository.save(entity);
 
-
         // When: deleting the task via service
         this.taskService.deleteTask(savedEntity.getId());
 
         // Then: the entity should no longer exist in the repository
         boolean exists = this.taskRepository.existsById(savedEntity.getId());
         assertThat(exists).isFalse();
-
     }
 
     @Test
+    @DisplayName("deleteTask throws when Task does not exist")
     public void testDeleteTaskNonExistingTask() {
-
-        // Given: a task ID that does not exist
-        Long taskId = 1L;
-        this.taskRepository.deleteById(taskId);
+        // Given: a task ID that is guaranteed to be absent
+        Long taskId = Long.MAX_VALUE;
 
         // When & Then: deleting should throw TaskNotFoundException
         TaskNotFoundException exception = assertThrows(
@@ -248,12 +258,12 @@ public class TestTaskService {
                 () -> this.taskService.deleteTask(taskId)
         );
 
-        // Optional: verify the exception message
-        assertThat(exception.getMessage()).isEqualTo("Task not found with ID: " + taskId);
-
+        // Then: verify the exception message is informative and contains the ID
+        assertThat(exception.getMessage()).contains("Task not found with ID: " + taskId);
     }
 
     @Test
+    @DisplayName("updateTask persists changes to an existing Task")
     public void testUpdateTask() {
         // Given: a TaskEntity persisted in the database
         TaskEntity entity = TaskEntity.builder()
@@ -264,7 +274,7 @@ public class TestTaskService {
 
         TaskEntity savedEntity = this.taskRepository.save(entity);
 
-        // And a Task model representing the same entity with updated fields
+        // And: a Task model representing the same entity with updated fields
         Task task = Task.builder()
                 .id(savedEntity.getId())
                 .title("Updated Title")
@@ -281,34 +291,29 @@ public class TestTaskService {
         assertThat(updatedTask.getTitle()).isEqualTo("Updated Title");
         assertThat(updatedTask.getDescription()).isEqualTo("Updated Description");
         assertThat(updatedTask.getStatus()).isEqualTo(TaskStatus.COMPLETED);
-
-
     }
 
-
     @Test
+    @DisplayName("updateTask throws when Task does not exist")
     public void testUpdateTaskWithNonExistingTask() {
-
-        // Given: a task ID that does not exist
-        Long taskId = 1L;
+        // Given: a task ID that is guaranteed to be absent
+        Long taskId = Long.MAX_VALUE;
         Task task = Task.builder()
                 .id(taskId)
                 .build();
-        this.taskRepository.deleteById(taskId);
 
-        // When & Then: deleting should throw TaskNotFoundException
+        // When & Then: updating should throw TaskNotFoundException
         TaskNotFoundException exception = assertThrows(
                 TaskNotFoundException.class,
                 () -> this.taskService.updateTask(task)
         );
 
-        // Optional: verify the exception message
-        assertThat(exception.getMessage()).isEqualTo("Task not found with ID: " + taskId);
-
+        // Then: verify the exception message is informative and contains the ID
+        assertThat(exception.getMessage()).contains("Task not found with ID: " + taskId);
     }
 
-
     @Test
+    @DisplayName("getAllTasks returns all persisted tasks")
     void testGetAllTasks() {
         // Given: a few TaskEntity objects persisted in the database
         TaskEntity taskEntity1 = TaskEntity.builder()
@@ -323,9 +328,7 @@ public class TestTaskService {
                 .status(TaskStatus.COMPLETED)
                 .build();
 
-        // Ensures only the new tasks exist the service using the repository
-        this.taskRepository.deleteAll();
-
+        // Given: only the new tasks exist in the repository to keep the test deterministic
         TaskEntity savedTaskEntity1 = this.taskRepository.save(taskEntity1);
         TaskEntity savedTaskEntity2 = this.taskRepository.save(taskEntity2);
 
@@ -335,7 +338,6 @@ public class TestTaskService {
         // Then: verify the list contains all persisted tasks
         assertThat(tasks).isNotNull();
         assertThat(tasks).hasSize(2);
-
         assertThat(tasks).extracting(Task::getId)
                 .containsExactlyInAnyOrder(savedTaskEntity1.getId(), savedTaskEntity2.getId());
     }
