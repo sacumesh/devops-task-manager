@@ -5,6 +5,7 @@ import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
 import com.dsti.devops_task_manager.enums.TaskStatus;
 import com.dsti.devops_task_manager.exceptions.TaskNotFoundException;
+import com.dsti.devops_task_manager.mappers.TaskMapper;
 import com.dsti.devops_task_manager.models.Task;
 import com.dsti.devops_task_manager.repositories.TaskRepository;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.List;
 public class TaskService {
 
     final TaskRepository taskRepository;
+    final TaskMapper taskMapper;
 
 
     public TaskEntity toTaskEntity(Task task) {
@@ -30,12 +32,7 @@ public class TaskService {
 
         log.debug("Converting Task to TaskEntity: {}", task);
 
-        return TaskEntity.builder()
-                .id(task.getId())
-                .title(task.getTitle())
-                .description(task.getDescription())
-                .status(task.getStatus())
-                .build();
+        return this.taskMapper.toEntity(task);
     }
 
     public Task toTask(TaskEntity taskEntity) {
@@ -46,12 +43,7 @@ public class TaskService {
 
         log.debug("Converting TaskEntity to Task: {}", taskEntity);
 
-        return Task.builder()
-                .id(taskEntity.getId())
-                .title(taskEntity.getTitle())
-                .description(taskEntity.getDescription())
-                .status(taskEntity.getStatus())
-                .build();
+        return this.taskMapper.toModel(taskEntity);
     }
 
     public Task createTask(@NonNull Task task) {
@@ -134,12 +126,7 @@ public class TaskService {
 
         log.debug("Converting TaskDto to Task: {}", taskDto);
 
-        return Task.builder()
-                .id(taskDto.getId())
-                .title(taskDto.getTitle())
-                .description(taskDto.getDescription())
-                .status(taskDto.getStatus())
-                .build();
+        return this.taskMapper.toModel(taskDto);
     }
 
 
@@ -152,13 +139,7 @@ public class TaskService {
 
         log.debug("Converting Task to TaskDto: {}", task);
 
-        return TaskDto
-                .builder()
-                .id(task.getId())
-                .title(task.getTitle())
-                .description(task.getDescription())
-                .status(task.getStatus())
-                .build();
+        return this.taskMapper.toDto(task);
     }
 
 
