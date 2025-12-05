@@ -84,7 +84,7 @@ public class TestTaskControllerIntegrationTests {
                                     "description": "This is a test"
                                 }
                                 """))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.title").value("Test Task"))
                 .andExpect(jsonPath("$.description").value("This is a test"))
@@ -160,7 +160,7 @@ public class TestTaskControllerIntegrationTests {
         TaskEntity entity = this.taskRepository.save(task);
 
         mockMvc.perform(delete(api + "/" + entity.getId()))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @Test
