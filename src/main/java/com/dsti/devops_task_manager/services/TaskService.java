@@ -1,6 +1,5 @@
 package com.dsti.devops_task_manager.services;
 
-
 import com.dsti.devops_task_manager.dtos.TaskDto;
 import com.dsti.devops_task_manager.entities.TaskEntity;
 import com.dsti.devops_task_manager.enums.TaskStatus;
@@ -8,139 +7,130 @@ import com.dsti.devops_task_manager.exceptions.TaskNotFoundException;
 import com.dsti.devops_task_manager.mappers.TaskMapper;
 import com.dsti.devops_task_manager.models.Task;
 import com.dsti.devops_task_manager.repositories.TaskRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class TaskService {
 
-    final TaskRepository taskRepository;
-    final TaskMapper taskMapper;
+    private static final String NOT_FOUND_FMT = "Task not found with ID: %d";
 
+    private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
     public TaskEntity toTaskEntity(Task task) {
-        if (task == null) {
-            log.warn("toTaskEntity() called with null task");
-            return null;
-        }
-
-        log.debug("Converting Task to TaskEntity: {}", task);
-
-        return this.taskMapper.toEntity(task);
+        if (task == null) return null;
+        log.debug("Converting Task to TaskEntity, title={}", task.getTitle());
+        return taskMapper.toEntity(task);
     }
 
     public Task toTask(TaskEntity taskEntity) {
-        if (taskEntity == null) {
-            log.warn("toTask() called with null taskEntity");
-            return null;
+        if (taskEntity == null) return null;
+        log.debug("Converting TaskEntity to Task, id={}", taskEntity.getId());
+        return taskMapper.toModel(taskEntity);
+    }
+
+    @Transactional
+    public Task createTask(@Valid Task task) {
+        try {
+            Objects.requireNonNull(task, "Task is required");
+            Objects.requireNonNull(task.getTitle(), "Title is required");
+            TaskEntity taskEntity = toTaskEntity(task);
+            taskEntity.setStatus(TaskStatus.TODO);
+            taskEntity.setId(null);
+
+            TaskEntity savedEntity = taskRepository.save(taskEntity);
+            log.info("Task created, id={}", savedEntity.getId());
+            return toTask(savedEntity);
+        } catch (RuntimeException e) {
+            log.error("Error creating task, title={}", task != null ? task.getTitle() : null, e);
+            throw e;
         }
-
-        log.debug("Converting TaskEntity to Task: {}", taskEntity);
-
-        return this.taskMapper.toModel(taskEntity);
     }
 
-    public Task createTask(@NonNull Task task) {
-        log.info("Creating task with title: {}", task.getTitle());
-
-        TaskEntity taskEntity = toTaskEntity(task);
-
-        // New task
-        taskEntity.setStatus(TaskStatus.TODO);
-        taskEntity.setId(null);
-
-        TaskEntity savedEntity = this.taskRepository.save(taskEntity);
-
-        log.debug("Task created with ID: {}", savedEntity.getId());
-
-        return toTask(savedEntity);
+    @Transactional(readOnly = true)
+    public Task getTask(Long id) {
+        try {
+            Objects.requireNonNull(id, "Task id is required");
+            TaskEntity taskEntity = taskRepository.findById(id)
+                    .orElseThrow(() -> new TaskNotFoundException(String.format(NOT_FOUND_FMT, id)));
+            return toTask(taskEntity);
+        } catch (RuntimeException e) {
+            log.error("Error retrieving task, id={}", id, e);
+            throw e;
+        }
     }
 
-    public Task getTask(@NonNull Long id) {
-        log.info("Fetching task by ID: {}", id);
-
-        TaskEntity taskEntity = this.taskRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("Task not found with ID: {}", id);
-                    return new TaskNotFoundException("Task not found with ID: " + id);
-                });
-
-        log.debug("Task retrieved: {}", taskEntity);
-        return toTask(taskEntity);
+    @Transactional
+    public void deleteTask(Long taskId) {
+        try {
+            Objects.requireNonNull(taskId, "Task id is required");
+            boolean exists = taskRepository.existsById(taskId);
+            if (!exists) {
+                throw new TaskNotFoundException(String.format(NOT_FOUND_FMT, taskId));
+            }
+            taskRepository.deleteById(taskId);
+            log.info("Task deleted, id={}", taskId);
+        } catch (RuntimeException e) {
+            log.error("Error deleting task, id={}", taskId, e);
+            throw e;
+        }
     }
 
-    public void deleteTask(@NonNull Long taskId) {
-        log.info("Deleting task with ID: {}", taskId);
+    @Transactional
+    public Task updateTask(@Valid Task task) {
+        try {
+            Objects.requireNonNull(task, "Task is required");
+            Long id = task.getId();
+            if (id == null) throw new IllegalArgumentException("Task id is required");
 
+            TaskEntity entity = taskRepository.findById(id)
+                    .orElseThrow(() -> new TaskNotFoundException(String.format(NOT_FOUND_FMT, id)));
 
-        TaskEntity entity = this.taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+            entity.setTitle(task.getTitle());
+            entity.setDescription(task.getDescription());
+            entity.setStatus(task.getStatus());
 
-        this.taskRepository.delete(entity);
-
-        log.debug("Task deleted: {}", entity);
+            TaskEntity updatedEntity = taskRepository.save(entity);
+            log.info("Task updated, id={}", updatedEntity.getId());
+            return toTask(updatedEntity);
+        } catch (RuntimeException e) {
+            log.error("Error updating task, id={}", task != null ? task.getId() : null, e);
+            throw e;
+        }
     }
 
-    public Task updateTask(@NonNull Task task) {
-        log.info("Updating task with ID: {}", task.getId());
-
-
-        TaskEntity entity = this.taskRepository.findById(task.getId())
-                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + task.getId()));
-
-
-        entity.setTitle(task.getTitle());
-        entity.setDescription(task.getDescription());
-        entity.setStatus(task.getStatus());
-
-        TaskEntity updatedEntity = this.taskRepository.save(entity);
-
-        log.debug("Task updated: {}", updatedEntity);
-
-        return toTask(updatedEntity);
-    }
-
+    @Transactional(readOnly = true)
     public List<Task> getAllTasks() {
-        log.info("Fetching all tasks");
-
-        List<TaskEntity> taskEntities = this.taskRepository.findAll();
-
-        log.debug("Total tasks retrieved: {}", taskEntities.size());
-
-        return taskEntities.stream()
-                .map(this::toTask)
-                .toList();
+        try {
+            List<TaskEntity> taskEntities = taskRepository.findAll();
+            log.debug("Total tasks retrieved: {}", taskEntities.size());
+            return taskEntities.stream().map(this::toTask).toList();
+        } catch (RuntimeException e) {
+            log.error("Error retrieving all tasks", e);
+            throw e;
+        }
     }
 
     public Task toTask(TaskDto taskDto) {
-        if (taskDto == null) {
-            log.warn("toTask() called with null taskDto");
-            return null;
-        }
-
-        log.debug("Converting TaskDto to Task: {}", taskDto);
-
-        return this.taskMapper.toModel(taskDto);
+        if (taskDto == null) return null;
+        log.debug("Converting TaskDto to Task, title={}", taskDto.getTitle());
+        return taskMapper.toModel(taskDto);
     }
-
 
     public TaskDto toTaskDto(Task task) {
-        if (task == null) {
-            log.warn("toTaskDto() called with null task");
-            return null;
-        }
-
-
-        log.debug("Converting Task to TaskDto: {}", task);
-
-        return this.taskMapper.toDto(task);
+        if (task == null) return null;
+        log.debug("Converting Task to TaskDto, id={}", task.getId());
+        return taskMapper.toDto(task);
     }
-
-
 }
