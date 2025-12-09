@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1.7
-
 # -------------------------
 # Stage 1: Build stage
 # -------------------------
@@ -64,13 +62,6 @@ USER appuser:appgroup
 # Use a dedicated port env for flexibility
 ENV SERVER_PORT=8080
 EXPOSE ${SERVER_PORT}
-
-# Healthcheck (basic TCP open check)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD sh -c 'nc -z 127.0.0.1 "${SERVER_PORT}" || exit 1'
-
-# JVM tuning for containers
-ENV JAVA_TOOL_OPTIONS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"
 
 # Use exec form so signals are forwarded correctly
 ENTRYPOINT ["java","-jar","/app/app.jar"]
