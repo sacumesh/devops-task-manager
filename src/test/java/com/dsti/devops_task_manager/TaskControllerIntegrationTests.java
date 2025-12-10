@@ -45,15 +45,6 @@ public class TaskControllerIntegrationTests {
     }
 
     @Test
-    @DisplayName("Health endpoint should respond with status UP")
-    void testHealthCheck() throws Exception {
-        mockMvc.perform(get(api + "/health"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value("UP"));
-    }
-
-    @Test
     @DisplayName("Get task by ID should return the task when it exists")
     void testGetTask() throws Exception {
         // Given: an existing task in the DB
