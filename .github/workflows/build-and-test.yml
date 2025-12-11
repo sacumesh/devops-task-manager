@@ -10,6 +10,7 @@ on:
 
 jobs:
   mvn-build-and-test:
+    name: Maven Build and Test
     runs-on: ubuntu-latest
 
     steps:
