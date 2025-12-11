@@ -12,6 +12,7 @@ ENV MAVEN_CLI_OPTS="-B -DskipTests -Dhttp.keepAlive=true -Dmaven.wagon.http.pool
 COPY pom.xml ./
 COPY .mvn/ .mvn/
 COPY mvnw ./
+RUN chmod +x mvnw
 
 # Pre-fetch dependencies using BuildKit cache (best for iterative builds)
 RUN --mount=type=cache,target=/root/.m2 \
