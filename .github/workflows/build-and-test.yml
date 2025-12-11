@@ -1,12 +1,12 @@
 # .github/workflows/ci.yml
 
-name: CI
+name: Build and Test
 
-# Trigger the workflow on PRs to develop branch or manually
 on:
   pull_request:
-    branches: [ "develop" ]
-  workflow_dispatch:
+    branches: [ "main", "develop" ]
+  push:
+    branches: ["main", "develop"]
 
 jobs:
   mvn-build-and-test:
