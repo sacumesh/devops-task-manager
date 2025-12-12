@@ -31,11 +31,6 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @GetMapping("/health")
-    public ResponseEntity<@NonNull Health> healthCheck() {
-        return ResponseEntity.ok(Health.status(Status.UP).build());
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<@NonNull TaskDto> getTask(@PathVariable @NonNull Long id) {
         log.debug("Fetching task with id={}", id);
