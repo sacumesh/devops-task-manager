@@ -1,0 +1,17 @@
+version: "1.0"
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    container_name: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD:-rootpass}
+      MARIADB_DATABASE: ${DATABASE_NAME:-tasks}
+      MARIADB_USER: ${DATABASE_USER:-user}
+      MARIADB_PASSWORD: ${DATABASE_PASSWORD:-test}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    restart: unless-stopped
+volumes:
+  mariadb_data: { }
+
