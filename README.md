@@ -60,7 +60,7 @@ docker compose -f docker-compose-mariadb.yaml up -d
 ### Configuration (Environment Variables)
 
 The values of the environment variables provided below are the defaults provided in the
-```docker-compose-mariadb.yaml```. Make sure to set them via an ```.env```  or directly. 
+```docker-compose-mariadb.yaml```. Make sure to source them using an ```.env``` or export them in the terminal before running the application. 
 
 ```bash
 export DATABASE_HOST=localhost
@@ -103,13 +103,14 @@ http://localhost:8080
 - Test DB: H2 (in-memory)
 
 Run:
-
+- Unix/macOS
 ```bash
-# Unix/macOS
 chmod +x mvnw
 ./mvnw test
+```
 
-# Windows
+- Windows
+```bash
 mvnw.cmd test
 ```
 
@@ -122,7 +123,10 @@ mvnw.cmd test
 Triggers:
 
 - Push/Pull Request: run unit tests, build Docker image (no push)
-- Manual (`workflow_dispatch`): input Docker tag (e.g., `v1.2.0`), login via secrets, build and push to Docker Hub
+- Manual (`workflow_dispatch`):
+  - input Docker tag (e.g., `v1.2.0`)
+  - login via secrets
+  - build and push to Docker Hub
 
 Workflow references:
 
@@ -143,4 +147,5 @@ docker build --no-cache -t <your-namespace>/<your-repo>:<tag> .
 ```
 
 ---
+
 
