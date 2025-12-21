@@ -27,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
+@CrossOrigin
 public class TaskController {
 
     private final TaskService taskService;
