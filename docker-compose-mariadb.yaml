@@ -11,6 +11,8 @@ services:
       MARIADB_PASSWORD: ${DATABASE_PASSWORD:-test}
     volumes:
       - mariadb_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     restart: unless-stopped
 volumes:
   mariadb_data: { }
